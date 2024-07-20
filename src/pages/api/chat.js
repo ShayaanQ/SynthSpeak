@@ -1,4 +1,3 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import axios from 'axios';
 
 export default async function handler(req, res) {
@@ -16,7 +15,7 @@ export default async function handler(req, res) {
 
   // Check if the referer is correct in non-development environments
   if (process.env.NODE_ENV !== "development") {
-    if (!referer || referer !== process.env.APP_URL) {
+    if (!referer || !referer.startsWith(process.env.APP_URL)) {
       console.log('Unauthorized access attempt from referer:', referer);
       return res.status(401).json({ message: 'Unauthorized' });
     }
