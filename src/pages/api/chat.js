@@ -7,6 +7,9 @@ export default async function handler(req, res) {
   console.log('Referer:', referer);
   console.log('NODE_ENV:', process.env.NODE_ENV);
 
+  // Log the API key for debugging (remove this after verifying)
+  console.log('OpenAI API Key:', process.env.OPENAI_API_KEY);
+
   // Check if the method is POST
   if (req.method !== 'POST') {
     console.log('Received request method:', req.method);
