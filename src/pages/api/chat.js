@@ -2,31 +2,40 @@
 import axios from 'axios';
 
 export default async function handler(req, res) {
-  const referer = req.headers.referer || req.headers.referrer; // get the referer from the request headers
+  const referer = req.headers.referer || req.headers.referrer;
 
+  // Log referer and environment for debugging
+  console.log('Referer:', referer);
+  console.log('NODE_ENV:', process.env.NODE_ENV);
+
+  // Check if the method is POST
   if (req.method !== 'POST') {
-    res.status(405).json({ message: 'Method should be POST' });
-  } else if (process.env.NODE_ENV !== "development") {
+    return res.status(405).json({ message: 'Method should be POST' });
+  }
+
+  // Check if the referer is correct in non-development environments
+  if (process.env.NODE_ENV !== "development") {
     if (!referer || referer !== process.env.APP_URL) {
-      res.status(401).json({ message: 'Unauthorized' });
+      return res.status(401).json({ message: 'Unauthorized' });
     }
   }
-  else {
-    try {
-      const { body } = req;
-      const url = 'https://api.openai.com/v1/chat/completions';
-      const headers = {
-        'Content-type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-      };
 
-      const response = await axios.post(url, body, { headers: headers })
+  try {
+    const { body } = req;
+    const url = 'https://api.openai.com/v1/chat/completions';
+    const headers = {
+      'Content-type': 'application/json',
+      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+    };
 
-      res.status(200).json(response.data);
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({ message: "Something went wrong" });
-    }
+    // Make the POST request to the OpenAI API
+    const response = await axios.post(url, body, { headers: headers });
+
+    // Send the response data back to the client
+    res.status(200).json(response.data);
+  } catch (error) {
+    // Log the error and send a generic error message
+    console.log('Error:', error);
+    res.status(500).json({ message: "Something went wrong" });
   }
-  
 }
